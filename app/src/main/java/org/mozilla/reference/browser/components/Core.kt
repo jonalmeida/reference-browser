@@ -10,6 +10,7 @@ import android.preference.PreferenceManager
 import mozilla.components.browser.icons.BrowserIcons
 import mozilla.components.browser.session.SessionManager
 import mozilla.components.browser.session.storage.SessionStorage
+import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.browser.storage.sync.PlacesHistoryStorage
 import mozilla.components.concept.engine.DefaultSettings
 import mozilla.components.concept.engine.Engine
@@ -65,7 +66,7 @@ class Core(private val context: Context) {
     val sessionManager by lazy {
         val sessionStorage = SessionStorage(context, engine)
 
-        SessionManager(engine).apply {
+        SessionManager(engine, browserStore).apply {
             sessionStorage.restore()?.let { snapshot -> restore(snapshot) }
 
             sessionStorage.autoSave(this)
@@ -87,6 +88,11 @@ class Core(private val context: Context) {
             MediaFeature(context).enable()
         }
     }
+
+    /**
+     * The browser state-tree storage. This will eventually be a replacement of the SessionManager.
+     */
+    val browserStore by lazy { BrowserStore() }
 
     /**
      * The storage component to persist browsing history (with the exception of
